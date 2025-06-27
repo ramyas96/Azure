@@ -7,52 +7,57 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  TF_WORKING_DIR: '$(System.DefaultWorkingDirectory)'
+- group: terraform-secrets  # 👈 Manual Variable Group with secrets
+- name: TF_WORKING_DIR
+  value: '$(System.DefaultWorkingDirectory)'
+
+- name: backend_rg
+  value: "ramyarg"
+- name: backend_storage_account
+  value: "ramyadevstorage"
+- name: backend_container
+  value: "tfstate"
+- name: backend_key
+  value: "dev.terraform.tfstate"
 
 steps:
 
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.x'
-    addToPath: true
 
 - task: TerraformInstaller@1
   inputs:
     terraformVersion: '1.7.5'
 
-- task: Bash@3
+- script: |
+    echo "Running terraform init"
+    terraform init \
+      -backend-config="resource_group_name=$(backend_rg)" \
+      -backend-config="storage_account_name=$(backend_storage_account)" \
+      -backend-config="container_name=$(backend_container)" \
+      -backend-config="key=$(backend_key)"
   displayName: 'Terraform Init'
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo "Initializing Terraform"
-      terraform init
-    env:
-      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-      ARM_TENANT_ID: $(ARM_TENANT_ID)
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
 
-- task: Bash@3
+- script: |
+    terraform plan -var-file="dev.tfvars" -out=tfplan
   displayName: 'Terraform Plan'
-  inputs:
-    targetType: 'inline'
-    script: |
-      terraform plan -out=tfplan
-    env:
-      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-      ARM_TENANT_ID: $(ARM_TENANT_ID)
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
 
-- task: Bash@3
+- script: |
+    terraform apply -auto-approve tfplan
   displayName: 'Terraform Apply'
-  inputs:
-    targetType: 'inline'
-    script: |
-      terraform apply -auto-approve tfplan
-    env:
-      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-      ARM_TENANT_ID: $(ARM_TENANT_ID)
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
