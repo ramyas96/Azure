@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  TF_WORKING_DIR: '$(System.DefaultWorkingDirectory)'
+
+steps:
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: '1.7.5'
+
+- task: Bash@3
+  displayName: 'Terraform Init'
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Initializing Terraform"
+      terraform init
+    env:
+      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+      ARM_TENANT_ID: $(ARM_TENANT_ID)
+
+- task: Bash@3
+  displayName: 'Terraform Plan'
+  inputs:
+    targetType: 'inline'
+    script: |
+      terraform plan -out=tfplan
+    env:
+      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+      ARM_TENANT_ID: $(ARM_TENANT_ID)
+
+- task: Bash@3
+  displayName: 'Terraform Apply'
+  inputs:
+    targetType: 'inline'
+    script: |
+      terraform apply -auto-approve tfplan
+    env:
+      ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+      ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+      ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+      ARM_TENANT_ID: $(ARM_TENANT_ID)
