@@ -1,4 +1,19 @@
-variable "location" {
-  type    = string
-  default = "East US"
-}
+# Common variables
+variable "resource_group_name" {}
+variable "location" {}
+variable "vnet_name" {}
+variable "vnet_address_space" {}
+variable "subnet_name" {}
+variable "subnet_address_prefix" {}
+variable "nic_name" {}
+variable "vm_name" {}
+variable "vm_size" {}
+variable "admin_username" {}
+variable "admin_password" {}
+variable "storage_account_name" {}
+
+# Backend variables
+variable "backend_rg" {}
+variable "backend_storage_account" {}
+variable "backend_container" {}
+variable "backend_key" {}
