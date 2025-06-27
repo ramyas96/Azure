@@ -9,7 +9,11 @@ variable "nic_name" {}
 variable "vm_name" {}
 variable "vm_size" {}
 variable "admin_username" {}
-variable "admin_password" {}
+variable "admin_password" {
+  description = "Admin password for the VM"
+  type        = string
+  sensitive   = true
+}
 variable "storage_account_name" {}
 
 # Backend variables
