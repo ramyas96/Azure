@@ -8,7 +8,6 @@ nic_name                  = "ramya-dev-nic"
 vm_name                   = "ramya-dev-vm"
 vm_size                   = "Standard_B1s"
 admin_username            = "azureuser"
-admin_password            = "P@ssword1234!"
 storage_account_name      = "ramyadevstorage"
 
 backend_rg                = "ramyarg"
