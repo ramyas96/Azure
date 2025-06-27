@@ -1,0 +1,6 @@
+### add these in ado library group
+ARM_CLIENT_ID	<your-client-id>
+ARM_CLIENT_SECRET	<your-secret>	
+ARM_SUBSCRIPTION_ID	<your-subscription>	
+ARM_TENANT_ID	<your-tenant>	
+TF_VAR_admin_password	P@ssword1234!
